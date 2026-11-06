@@ -51,3 +51,47 @@ python -m pip show fastapi
 ```
 
 The output should include the package name, version, and a location inside this project's `.venv` folder. The `(.venv)` prefix in your terminal prompt indicates that the environment is active. If you see a pip update notice, it is informational; updating pip is optional.
+
+## Target Application Structure
+
+As the project grows, organize code by feature. Add folders when we introduce the concepts they are responsible for; the early lessons can stay in `main.py` until we refactor them.
+
+```text
+app/
++-- main.py
++-- core/
+|   +-- config.py
+|   +-- errors.py
++-- db/
+|   +-- session.py
++-- features/
+    +-- users/
+    |   +-- router.py
+    |   +-- schemas.py
+    |   +-- service.py
+    |   +-- repository.py
+    |   +-- models.py
+    +-- tasks/
+        +-- router.py
+        +-- schemas.py
+        +-- service.py
+        +-- repository.py
+        +-- models.py
+```
+
+The request flow through a feature is:
+
+```text
+router -> service -> repository -> database
+```
+
+- **`router.py`** defines HTTP routes, methods, parameters, and status codes.
+- **`service.py`** contains feature rules and use cases, such as whether a user may update a task.
+- **`repository.py`** contains database queries for that feature.
+- **`schemas.py`** defines the data accepted by and returned from the API, usually with Pydantic models.
+- **`models.py`** describes how the feature's data is stored in the database.
+- **`db/session.py`** holds shared database connection and session setup.
+- **`core/config.py`** holds application-wide settings; **`core/errors.py`** holds shared error handling.
+- **`main.py`** creates the FastAPI application and connects the feature routers.
+
+This is the structure to grow toward, not a requirement to create every file immediately. For example, `repository.py` and `models.py` become relevant when we add a database.
