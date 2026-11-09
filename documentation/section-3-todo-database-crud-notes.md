@@ -6,23 +6,14 @@ Section 2 introduced SQL, SQLite, the SQLAlchemy engine, sessions, and the Todo 
 
 ## The request lifecycle
 
-```mermaid
-sequenceDiagram
-    participant Client as Postman / client
-    participant API as FastAPI route
-    participant Dep as get_db dependency
-    participant ORM as SQLAlchemy session
-    participant DB as SQLite database
-    Client->>API: Send request
-    API->>Dep: Request a database session
-    Dep->>ORM: Create SessionLocal()
-    Dep-->>API: yield the session
-    API->>ORM: Query or change Todo rows
-    ORM->>DB: Execute SQL
-    DB-->>ORM: Return rows / save changes
-    ORM-->>API: Return result
-    API-->>Client: Send HTTP response
-    Dep->>ORM: Close session in finally
+```text
+Request arrives
+  -> get_db creates SessionLocal()
+  -> yield gives the session to the route
+  -> route reads or changes Todo rows
+  -> SQLAlchemy sends SQL to SQLite
+  -> FastAPI returns the response
+  -> finally closes the session
 ```
 
 ## 1. One session per request with `Depends` and `yield`

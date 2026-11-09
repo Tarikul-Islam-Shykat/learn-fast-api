@@ -6,13 +6,18 @@ This section moves your app from a temporary Python list to data that survives a
 
 ## The big picture
 
-```mermaid
-flowchart LR
-    A[Postman request] --> B[FastAPI route]
-    B --> C[Pydantic checks the request]
-    C --> D[SQLAlchemy session]
-    D --> E[SQL query]
-    E --> F[(SQLite database file)]
+```text
+Postman request
+      ↓
+FastAPI route
+      ↓
+Pydantic checks the request
+      ↓
+SQLAlchemy session
+      ↓
+SQL query
+      ↓
+SQLite database file
 ```
 
 Each part has a job. FastAPI handles the HTTP request, Pydantic checks API data, SQLAlchemy helps your Python code work with tables, and SQLite stores the records.
@@ -89,11 +94,8 @@ This is a useful learning loop: let the FastAPI app write a todo, then open the 
 
 SQLAlchemy maps Python classes to SQL tables and Python objects to table rows. It can generate SQL for common operations, while the database still stores the information. [SQLAlchemy ORM overview](https://docs.sqlalchemy.org/en/20/orm/)
 
-```mermaid
-flowchart LR
-    A[Python Todo object] --> B[SQLAlchemy ORM]
-    B --> C[SQL statement]
-    C --> D[(todos table in SQLite)]
+```text
+Python Todo object -> SQLAlchemy ORM -> SQL statement -> todos table in SQLite
 ```
 
 ### The four pieces in `database.py`
@@ -168,21 +170,13 @@ These models may have similar fields, but answer different questions:
 
 ## 7. The request from start to finish
 
-```mermaid
-sequenceDiagram
-    participant Client as Postman / client
-    participant API as FastAPI route
-    participant P as Pydantic
-    participant S as SQLAlchemy session
-    participant DB as SQLite file
-    Client->>API: Send todo request
-    API->>P: Validate request data
-    P-->>API: Validated data
-    API->>S: Add, find, update, or delete Todo
-    S->>DB: Run SQL and commit changes
-    DB-->>S: Stored row or query result
-    S-->>API: Return result
-    API-->>Client: Send HTTP response
+```text
+Client sends request
+  -> FastAPI route receives it
+  -> Pydantic validates the request data
+  -> SQLAlchemy session works with Todo rows
+  -> SQLite runs SQL and stores or returns data
+  -> FastAPI sends the response
 ```
 
 This replaces the in-memory list used by Books. A Python list is temporary; a committed SQLite row survives an app restart.
