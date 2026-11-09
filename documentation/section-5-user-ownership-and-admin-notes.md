@@ -162,3 +162,25 @@ Try to explain these without looking above:
 - [FastAPI dependency injection](https://fastapi.tiangolo.com/tutorial/dependencies/)
 - [RFC 7519: JSON Web Token](https://www.rfc-editor.org/rfc/rfc7519.html)
 - [RFC 8725: JWT Best Current Practices](https://www.rfc-editor.org/rfc/rfc8725.html)
+
+## Related keywords
+
+- **Current user (`current_user`):** the database user identified by the verified bearer token.
+- **Ownership check:** the query condition that requires both the requested Todo ID and the owner's user ID to match.
+- **Data isolation:** keeping one user's records separate from another user's records.
+- **IDOR:** Insecure Direct Object Reference; a flaw where changing an ID lets a user access someone else's record.
+- **Role-based access control (RBAC):** granting actions based on a role such as `admin`.
+- **Least privilege:** give each account only the permissions it needs; normal registration must not grant admin rights.
+- **401 Unauthorized:** the caller is not authenticated with valid credentials.
+- **403 Forbidden:** the caller is authenticated but lacks permission for the action.
+- **404 Not Found:** no matching record is available to this user; ownership-aware queries can avoid exposing another user's record.
+- **204 No Content:** successful update or delete response with no body.
+
+## Questions you can ask while learning
+
+- Why must the server set `owner_id` from `current_user.id` instead of trusting the request body?
+- Why should a user's read, update, and delete queries filter by both `todo_id` and `owner_id`?
+- How does an ownership filter prevent an IDOR flaw?
+- When should a route return 401, 403, 404, or 204?
+- Why should admin access use a separate reusable role-check dependency?
+- Which fields are safe to return from a user profile, and why must `hashed_password` stay private?

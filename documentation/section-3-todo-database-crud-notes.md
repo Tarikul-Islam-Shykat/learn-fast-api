@@ -295,3 +295,27 @@ Try to explain these without looking above:
 - [FastAPI path parameter validation](https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/)
 - [FastAPI response status codes](https://fastapi.tiangolo.com/tutorial/response-status-code/)
 - [SQLAlchemy session basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)
+
+## Related keywords
+
+- **Session factory (`SessionLocal`):** creates a new SQLAlchemy session for work with the database.
+- **Session (`db`):** the temporary object a route uses to query or change rows. It is not the database table or the Todo model.
+- **Dependency:** reusable setup or service FastAPI can provide to a route.
+- **`Depends(get_db)`:** tells FastAPI to call `get_db` and inject the yielded session into the route parameter.
+- **`yield`:** gives FastAPI the session, pauses the dependency, then lets its cleanup code run after the route finishes.
+- **`finally`:** Python block that runs cleanup whether the route succeeds or raises an error.
+- **`models.Todo`:** identifies the SQLAlchemy table model to query; `db` is the session that runs the query.
+- **`Path(gt=0)`:** validates that a path ID is an integer greater than zero.
+- **`status_code`:** route setting for the success response's HTTP status. It does not run a query or validation.
+- **`HTTPException`:** stops route handling and returns an HTTP error such as 404.
+- **`commit()`:** saves pending database changes.
+- **`refresh()`:** reloads an ORM object from the database, for example to read its generated ID after insert.
+- **`204 No Content`:** successful response with no body.
+
+## Questions you can ask while learning
+
+- When does FastAPI call `get_db`, and when does its `finally` block run?
+- Does `Depends(get_db)` inject a Todo model or a database session?
+- What does `db.query(models.Todo)` specify, and what does `.all()` ask for?
+- Why is a valid but missing Todo a 404, while an invalid path ID is a validation error?
+- Why does setting a response status code not make the database operation succeed by itself?

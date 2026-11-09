@@ -196,3 +196,28 @@ Try to explain these without looking above:
 - [FastAPI OAuth2 password form](https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/)
 - [RFC 7519: JSON Web Token](https://www.rfc-editor.org/rfc/rfc7519.html)
 - [RFC 8725: JWT Best Current Practices](https://www.rfc-editor.org/rfc/rfc8725.html)
+
+## Related keywords
+
+- **Router (`APIRouter`):** a group of related routes that `main.py` can include in the app.
+- **Authentication:** establishing who is making the request.
+- **Authorization:** deciding what that identified user is allowed to do.
+- **Foreign key:** the Todo's `owner_id` value that points to `users.id`.
+- **Relationship:** SQLAlchemy's Python-side way to navigate between related User and Todo objects.
+- **Unique constraint:** database rule that prevents duplicate values such as usernames or emails.
+- **Password hash:** one-way password representation stored in the database; a login verifies against it.
+- **OAuth2 password form:** form-encoded `username` and `password` sent to the token endpoint in this course flow.
+- **Bearer token:** access token sent in `Authorization: Bearer <token>`.
+- **`OAuth2PasswordBearer`:** FastAPI helper that extracts the bearer token from a request; your code must still verify it.
+- **JWT claim:** a value in the token payload, such as `sub` for the subject/user and `exp` for expiration.
+- **JWT signature:** cryptographic check that detects token changes. A signed JWT payload is readable; it is not automatically encrypted.
+- **401 Unauthorized:** credentials are missing or invalid.
+- **Role:** user attribute, such as `user` or `admin`, used for authorization decisions.
+
+## Questions you can ask while learning
+
+- Why is password hashing different from encryption?
+- What information is safe to put in a JWT payload if the client can read it?
+- What does `OAuth2PasswordBearer` do, and what does it leave for `get_current_user` to do?
+- Why should the server choose the user's role during registration?
+- What should happen if the token is expired, has no `sub`, or refers to a user who no longer exists?

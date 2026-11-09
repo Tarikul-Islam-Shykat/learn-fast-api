@@ -197,3 +197,23 @@ Try explaining these without looking above:
 - [FastAPI SQL databases guide](https://fastapi.tiangolo.com/tutorial/sql-databases/)
 - [SQLAlchemy ORM overview](https://docs.sqlalchemy.org/en/20/orm/)
 - [SQLAlchemy session basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)
+
+## Related keywords
+
+- **DBMS:** software that manages a database, such as SQLite, MySQL, or PostgreSQL.
+- **Schema:** the definition of a database's tables, columns, types, and constraints. Here, this is separate from a Pydantic API schema.
+- **Primary key:** a column, commonly `id`, that uniquely identifies a row.
+- **Foreign key:** a column that points to a row in another table.
+- **Engine:** SQLAlchemy's connection manager for a database.
+- **Session:** a temporary SQLAlchemy workspace for querying and changing rows.
+- **ORM:** a mapper between Python objects and relational database rows.
+- **Metadata:** SQLAlchemy's collected definitions of the tables registered with `Base`.
+- **Transaction:** a set of database changes treated as one unit; commit saves it, while rollback cancels uncommitted changes.
+- **`create_all`:** creates missing tables from registered models; it does not migrate existing tables after model changes.
+
+## Questions you can ask while learning
+
+- Which part of my code is raw SQL, and which part is SQLAlchemy generating SQL for me?
+- What does the database file keep after FastAPI stops?
+- Why can the same table model be used with an ORM query but a Pydantic model be used to validate an HTTP body?
+- What could happen if an `UPDATE` or `DELETE` query has no `WHERE` condition?
