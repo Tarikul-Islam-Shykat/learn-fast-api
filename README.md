@@ -95,3 +95,7 @@ router -> service -> repository -> database
 - **`main.py`** creates the FastAPI application and connects the feature routers.
 
 This is the structure to grow toward, not a requirement to create every file immediately. For example, `repository.py` and `models.py` become relevant when we add a database.
+
+## Learning notes
+
+- [Section 2: SQL databases and SQLAlchemy](documentation/learning-road-map/section-2-sql-database-notes.md)
