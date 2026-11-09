@@ -16,9 +16,13 @@ Request arrives
   -> finally closes the session
 ```
 
-## 1. One session per request with `Depends` and `yield`
+## 1. Create and provide one session per request
 
-`SessionLocal` creates a session. The FastAPI dependency opens one, gives it to a route with `yield`, and closes it in `finally`. This makes cleanup happen even if the route raises an error. FastAPI supports `yield` dependencies for resources such as database sessions. [FastAPI: Dependencies with yield](https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/)
+Start with `SessionLocal`: it is a **factory** that creates a SQLAlchemy session. The session is a temporary work handle for querying and changing database rows; it is not a database model.
+
+### `yield` hands the session over, then allows cleanup
+
+In Python, `yield` pauses a function and gives a value to its caller. FastAPI uses it to provide a resource now and run cleanup afterward:
 
 ```python
 from database import SessionLocal
@@ -43,9 +47,58 @@ def read_all(db: Session = Depends(get_db)):
     ...
 ```
 
-`db` is a normal SQLAlchemy `Session`. It lets the route query, add, update, and delete ORM objects. Read-only queries do not need a commit; changes need `db.commit()`. [SQLAlchemy session basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)
+This happens in order:
 
-## 2. Reusable Todo request model
+1. `db = SessionLocal()` creates a session.
+2. `yield db` gives the session to FastAPI and pauses `get_db`.
+3. FastAPI runs the route using that session.
+4. After the request, execution resumes at `finally`, and `db.close()` cleans up—even if the route raised an error.
+
+FastAPI supports `yield` dependencies for resources such as database sessions. [FastAPI: Dependencies with yield](https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/)
+
+### `Depends(get_db)` asks FastAPI to provide it
+
+```python
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
+
+def read_all(db: Session = Depends(get_db)):
+    return db.query(models.Todo).all()
+```
+
+Read the parameter like this:
+
+- `db` is where the route receives the session.
+- `Session` is a type hint: it tells you and your editor what kind of object `db` is.
+- `Depends(get_db)` tells FastAPI to call `get_db` and pass its yielded session into `db`.
+
+You do not call `get_db()` inside every route. FastAPI calls it and handles the cleanup. Each request gets its own session.
+
+### `models.Todo` tells the session what to query
+
+In `db.query(models.Todo)`, `db` is the session and `models.Todo` identifies the table model whose rows you want. `.all()` asks for every matching row. The session can also add, update, and delete model objects. Read-only queries do not need a commit; changes do need `db.commit()`. [SQLAlchemy session basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)
+
+So `db: Session = Depends(get_db)` means: **FastAPI, give this route a database session, and make sure it gets closed afterward.**
+
+## 2. Status codes tell the client what happened
+
+```python
+@app.get("/todos", status_code=status.HTTP_200_OK)
+def read_all(db: Session = Depends(get_db)):
+    return db.query(models.Todo).all()
+```
+
+`status_code` is an option on the route decorator. `status` is FastAPI's collection of named HTTP status constants; `status.HTTP_200_OK` means `200`.
+
+- `200 OK` is the default for a successful GET, so writing it explicitly is optional.
+- `201 Created` can indicate that POST created a record.
+- `204 No Content` means success with no response body; this section uses it for successful PUT and DELETE.
+- `404 Not Found` is an error when the requested Todo does not exist. The route raises it separately with `HTTPException`.
+
+The status code labels the HTTP response. It does not create a session, run a database query, or validate input. [FastAPI: Response status codes](https://fastapi.tiangolo.com/tutorial/response-status-code/)
+
+## 3. Reusable Todo request model
 
 The request model describes the fields a client may send. The database generates `id`, so clients do not need to send it when creating a Todo.
 
@@ -61,7 +114,7 @@ class TodoRequest(BaseModel):
 
 Pydantic validates the request body before the route runs. If a required field is missing or a value is invalid, FastAPI returns a validation response and the route does not perform the database operation.
 
-## 3. Get all Todos — `GET /todos`
+## 4. Get all Todos — `GET /todos`
 
 ```python
 @app.get("/todos", status_code=status.HTTP_200_OK)
@@ -71,7 +124,7 @@ def read_all(db: Session = Depends(get_db)):
 
 The query means “select every Todo row.” If there are no rows, the response is an empty list: `[]`.
 
-## 4. Get one Todo — `GET /todos/{todo_id}`
+## 5. Get one Todo — `GET /todos/{todo_id}`
 
 ```python
 @app.get("/todos/{todo_id}", status_code=status.HTTP_200_OK)
@@ -93,7 +146,7 @@ def read_todo(
 
 `todo_id` is a **path parameter** because it is part of the URL. `Path(gt=0)` requires a positive integer; an invalid value gets a validation error. If the ID is valid but no row has that ID, return `404 Not Found`. [FastAPI: Path validation](https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/)
 
-## 5. Create a Todo — `POST /todos`
+## 6. Create a Todo — `POST /todos`
 
 ```python
 @app.post("/todos", status_code=status.HTTP_201_CREATED)
@@ -116,7 +169,7 @@ What happens:
 4. SQLite generates the primary-key `id`; `db.refresh()` reloads it onto the Python object.
 5. The response includes the saved Todo and its generated ID.
 
-## 6. Update a Todo — `PUT /todos/{todo_id}`
+## 7. Update a Todo — `PUT /todos/{todo_id}`
 
 `PUT` receives the full set of editable fields. This version returns `204 No Content` on success, so it sends no response body.
 
@@ -146,7 +199,7 @@ def update_todo(
 
 The path ID selects the row. The request body supplies the replacement values. If the row does not exist, raise `404` before changing anything.
 
-## 7. Delete a Todo — `DELETE /todos/{todo_id}`
+## 8. Delete a Todo — `DELETE /todos/{todo_id}`
 
 ```python
 @app.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -170,7 +223,7 @@ def delete_todo(
 
 `db.delete()` marks the row for removal. `db.commit()` makes the deletion permanent. A successful `204` response has no body. [FastAPI: Status codes](https://fastapi.tiangolo.com/tutorial/response-status-code/)
 
-## 8. Imports and app setup
+## 9. Imports and app setup
 
 The snippets above assume these names are imported in the file containing the routes:
 
@@ -192,7 +245,7 @@ Base.metadata.create_all(bind=engine)
 
 Keep `SessionLocal`, `Base`, and `engine` in the shared database module as in Section 2. Keep the Pydantic request model separate from the SQLAlchemy table model.
 
-## 9. What each route returns
+## 10. What each route returns
 
 | Request | Success | Missing Todo | Body on success |
 |---|---:|---:|---|
@@ -204,7 +257,7 @@ Keep `SessionLocal`, `Base`, and `engine` in the shared database module as in Se
 
 `204 No Content` specifically means the response has no content. Do not return a JSON message with a `204` response.
 
-## 10. Try the API with curl
+## 11. Try the API with curl
 
 Start FastAPI, then create a Todo. Use the ID returned by POST in the later calls:
 
