@@ -98,4 +98,5 @@ This is the structure to grow toward, not a requirement to create every file imm
 
 ## Learning notes
 
-- [Section 2: SQL databases and SQLAlchemy](documentation/learning-road-map/section-2-sql-database-notes.md)
+- [Section 2: SQL databases and SQLAlchemy](documentation/section-2-sql-database-notes.md)
+- [Section 3: Todo database CRUD API](documentation/section-3-todo-database-crud-notes.md)
