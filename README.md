@@ -104,3 +104,4 @@ This is the structure to grow toward, not a requirement to create every file imm
 - [Section 5: User ownership and admin authorization](documentation/section-5-user-ownership-and-admin-notes.md)
 - [Section 6: Production DBMS (PostgreSQL and MySQL)](documentation/section-6-production-dbms-notes.md)
 - [Section 7: Alembic data migration](documentation/section-7-alembic-data-migration-notes.md)
+- [Section 8: Testing with pytest](documentation/section-8-testing-with-pytest-notes.md)
