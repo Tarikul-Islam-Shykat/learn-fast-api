@@ -7,6 +7,38 @@ GET /shipments/42
                └── path parameter: shipment_id = 42
 ```
 
+## Path parameter vs query parameter
+
+```text
+GET /shipments/42?include_weight=false
+               ──  ───────────────────
+               │   query parameter (after the ?)
+               path parameter (between the slashes)
+```
+
+| | Path parameter | Query parameter |
+|---|---|---|
+| Where | Inside the path, between `/` | After the `?` as `key=value`, joined by `&` |
+| Purpose | **Which** item | **How** you want it (filter, sort, options) |
+| Required? | Usually yes | Usually optional, with a default |
+| Example | `/shipments/42` | `/shipments?status=shipped&limit=10` |
+
+- Only the parts you declare with `{}` in the route are parameters. The other words are fixed.
+
+  ```text
+  Route:  /shipments/{shipment_id}/items/{item_id}
+  URL:    /shipments/42/items/7
+           ─────────  ──  ─────  ─
+           fixed      param fixed param
+  ```
+
+- In FastAPI, a name inside `{}` in the route is a path parameter. A plain-typed argument that is **not** in the path is a query parameter.
+- Real life, Amazon: `amazon.com/dp/B08N5WRWNW` picks one product (path). `amazon.com/s?k=laptop&sort=price` searches and sorts (query).
+
+**In short:** the path says which item, and the query says how you want it.
+
+---
+
 All examples use one small fake database, like the course's shipment app:
 
 ```python
