@@ -102,3 +102,5 @@ This is the structure to grow toward, not a requirement to create every file imm
 - [Section 3: Todo database CRUD API](documentation/section-3-todo-database-crud-notes.md)
 - [Section 4: Authentication and authorization](documentation/section-4-authentication-and-authorization-notes.md)
 - [Section 5: User ownership and admin authorization](documentation/section-5-user-ownership-and-admin-notes.md)
+- [Section 6: Production DBMS (PostgreSQL and MySQL)](documentation/section-6-production-dbms-notes.md)
+- [Section 7: Alembic data migration](documentation/section-7-alembic-data-migration-notes.md)
